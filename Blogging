@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Blogging Platform</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .post {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .post h2 {
+            margin-top: 0;
+        }
+        .buttons {
+            margin-top: 10px;
+        }
+        .buttons button {
+            margin-right: 5px;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Blogging Platform</h1>
+    <input type="text" id="title-input" placeholder="Enter post title"><br><br>
+    <textarea id="content-input" placeholder="Enter post content" rows="5" cols="50"></textarea><br><br>
+    <button onclick="createPost()">Create Post</button>
+    <div id="posts"></div>
+
+    <script>
+        let posts = JSON.parse(localStorage.getItem('posts')) || [];
+
+        function savePosts() {
+            localStorage.setItem('posts', JSON.stringify(posts));
+        }
+
+        function createPost() {
+            const title = document.getElementById('title-input').value;
+            const content = document.getElementById('content-input').value;
+
+            if (title === '' || content === '') {
+                alert('Please enter both title and content.');
+                return;
+            }
+
+            const post = { title, content };
+            posts.push(post);
+            savePosts();
+            renderPosts();
+
+            document.getElementById('title-input').value = '';
+            document.getElementById('content-input').value = '';
+        }
+
+        function renderPosts() {
+            const postsContainer = document.getElementById('posts');
+            postsContainer.innerHTML = '';
+
+            posts.forEach((post, index) => {
+                const postElement = document.createElement('div');
+                postElement.className = 'post';
+                
+                const titleElement = document.createElement('h2');
+                titleElement.textContent = post.title;
+
+                const contentElement = document.createElement('p');
+                contentElement.textContent = post.content;
+
+                const buttonsDiv = document.createElement('div');
+                buttonsDiv.className = 'buttons';
+
+                const editButton = document.createElement('button');
+                editButton.textContent = 'Edit';
+                editButton.onclick = () => editPost(index);
+
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.onclick = () => deletePost(index);
+
+                buttonsDiv.appendChild(editButton);
+                buttonsDiv.appendChild(deleteButton);
+
+                postElement.appendChild(titleElement);
+                postElement.appendChild(contentElement);
+                postElement.appendChild(buttonsDiv);
+
+                postsContainer.appendChild(postElement);
+            });
+        }
+
+        function editPost(index) {
+            const post = posts[index];
+            const newTitle = prompt('Edit title:', post.title);
+            const newContent = prompt('Edit content:', post.content);
+
+            if (newTitle !== null && newContent !== null) {
+                posts[index].title = newTitle;
+                posts[index].content = newContent;
+                savePosts();
+                renderPosts();
+            }
+        }
+
+        function deletePost(index) {
+            posts.splice(index, 1);
+            savePosts();
+            renderPosts();
+        }
+
+        renderPosts();
+    </script>
+</body>
+</html>
